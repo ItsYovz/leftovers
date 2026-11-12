@@ -4,24 +4,20 @@ const SUPABASE_ANON_KEY = 'sb_publishable_3dUquoyoX46LTtGLpXxUdw_NJVLS8p2';
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let usuarioActual = null;
 let perfilActual = null;
 
-document.addEventListener('DOMContentLoaded', async () => {
-  await verificarSesion();
+document.addEventListener('DOMContentLoaded', () => {
+  verificarSesion();
   cargarProductosCatalogo();
 });
 
-// --- AUTENTICACIÓN Y SESIÓN ---
-async function verificarSesion() {
-  const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    usuarioActual = session.user;
-    // Obtener rol y datos del perfil
-    const { data } = await db.from('perfiles').select('*').eq('id', usuarioActual.id).single();
-    perfilActual = data;
+// --- AUTENTICACIÓN DIRECTA EN BASE DE DATOS (SIN LÍMITE DE CORREOS) ---
+function verificarSesion() {
+  const sesionGuardada = localStorage.getItem('leftovers_usuario');
+  if (sesionGuardada) {
+    perfilActual = JSON.parse(sesionGuardada);
     renderizarNavbarAuth();
-    if (perfilActual?.tipo === 'restaurante') {
+    if (perfilActual.tipo === 'restaurante') {
       mostrarVistaRestaurante();
     }
   } else {
@@ -31,7 +27,7 @@ async function verificarSesion() {
 
 function renderizarNavbarAuth() {
   const container = document.getElementById('nav-auth-container');
-  if (usuarioActual && perfilActual) {
+  if (perfilActual) {
     container.innerHTML = `
       <span style="font-size: 0.85rem; font-weight: 600;">Hola, ${perfilActual.nombre}</span>
       <button class="btn-secundario" onclick="cerrarSesion()">Cerrar Sesión</button>
@@ -83,52 +79,58 @@ function toggleCamposNegocio() {
 
 async function manejarRegistro(e) {
   e.preventDefault();
-  const email = document.getElementById('reg-email').value;
+  const correo = document.getElementById('reg-email').value.trim().toLowerCase();
   const password = document.getElementById('reg-password').value;
   const nombre = document.getElementById('reg-nombre').value;
   const tipo = document.getElementById('reg-tipo').value;
   const direccion = document.getElementById('reg-direccion').value || null;
   const whatsapp = document.getElementById('reg-whatsapp').value || null;
 
-  // 1. Registrar en Supabase Auth
-  const { data, error } = await db.auth.signUp({ email, password });
+  // Guardar directamente en la tabla perfiles sin enviar correos
+  const { data, error } = await db
+    .from('perfiles')
+    .insert([{ nombre, correo, password, tipo, direccion, whatsapp }])
+    .select()
+    .single();
+
   if (error) {
-    alert('Error al registrarse: ' + error.message);
+    if (error.code === '23505') {
+      alert('Este correo ya está registrado. Intenta iniciar sesión.');
+    } else {
+      alert('Error al registrarse: ' + error.message);
+    }
     return;
   }
 
-  // 2. Guardar perfil adicional
-  if (data.user) {
-    await db.from('perfiles').insert([{
-      id: data.user.id,
-      nombre,
-      tipo,
-      direccion,
-      whatsapp
-    }]);
-  }
-
-  alert('¡Cuenta creada con éxito! Ya puedes iniciar sesión.');
-  cerrarModalAuth();
-  cambiarTabAuth('login');
+  // Iniciar sesión automáticamente tras registrarse
+  localStorage.setItem('leftovers_usuario', JSON.stringify(data));
+  alert('¡Cuenta creada con éxito! Bienvenido a Leftovers.');
+  window.location.reload();
 }
 
 async function manejarLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('login-email').value;
+  const correo = document.getElementById('login-email').value.trim().toLowerCase();
   const password = document.getElementById('login-password').value;
 
-  const { error } = await db.auth.signInWithPassword({ email, password });
-  if (error) {
+  const { data, error } = await db
+    .from('perfiles')
+    .select('*')
+    .eq('correo', correo)
+    .eq('password', password)
+    .single();
+
+  if (error || !data) {
     alert('Correo o contraseña incorrectos.');
     return;
   }
 
+  localStorage.setItem('leftovers_usuario', JSON.stringify(data));
   window.location.reload();
 }
 
-async function cerrarSesion() {
-  await db.auth.signOut();
+function cerrarSesion() {
+  localStorage.removeItem('leftovers_usuario');
   window.location.reload();
 }
 
@@ -152,7 +154,7 @@ async function cargarProductosCatalogo() {
         <img src="${prod.imagen_url}" alt="${prod.titulo}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c'">
         <div class="card-body">
           <div class="card-top">
-            <span class="tag-categoria">Restaurante</span>
+            <span class="tag-categoria">Comercio Local</span>
             <span class="tag-descuento">-${ahorro}% OFF</span>
           </div>
           <h4>${prod.perfiles?.nombre || 'Establecimiento Local'}</h4>
@@ -167,7 +169,7 @@ async function cargarProductosCatalogo() {
           </div>
           <div>
             <span style="font-size:0.75rem; display:block; text-align:right;">Quedan: ${prod.cantidad_disponible}</span>
-            <button class="btn-primario" style="padding: 6px 12px; font-size: 0.8rem; margin-top:4px;" onclick="reservarProducto('${prod.id}', '${prod.perfiles?.whatsapp}', '${prod.titulo}')">Reservar</button>
+            <button class="btn-primario" style="padding: 6px 12px; font-size: 0.8rem; margin-top:4px;" onclick="reservarProducto('${prod.id}', '${prod.perfiles?.whatsapp}', '${prod.titulo}', ${prod.cantidad_disponible})">Reservar</button>
           </div>
         </div>
       </div>
@@ -175,18 +177,32 @@ async function cargarProductosCatalogo() {
   }).join('');
 }
 
-function reservarProducto(prodId, whatsapp, titulo) {
-  if (!usuarioActual) {
+async function reservarProducto(prodId, whatsapp, titulo, stockActual) {
+  if (!perfilActual) {
     alert('Debes iniciar sesión como cliente para reservar.');
     abrirModalAuth('login');
     return;
   }
-  if (whatsapp) {
-    const mensaje = encodeURIComponent(`Hola, quiero reservar el producto "${titulo}" visto en Leftovers.`);
+
+  // Guardar reserva y restar 1 al inventario
+  await db.from('reservas').insert([{
+    producto_id: prodId,
+    cliente_id: perfilActual.id,
+    cantidad: 1
+  }]);
+
+  await db.from('productos')
+    .update({ cantidad_disponible: stockActual - 1 })
+    .eq('id', prodId);
+
+  if (whatsapp && whatsapp !== 'null') {
+    const mensaje = encodeURIComponent(`Hola, soy ${perfilActual.nombre} y acabo de reservar el paquete "${titulo}" en Leftovers.`);
     window.open(`https://wa.me/${whatsapp}?text=${mensaje}`, '_blank');
   } else {
-    alert('¡Reserva registrada con éxito! Pasa a recoger tu producto en el horario indicado.');
+    alert('¡Reserva registrada con éxito! Pasa a recoger tu producto al local.');
   }
+
+  cargarProductosCatalogo();
 }
 
 // --- VISTA Y ACCIONES DE RESTAURANTE ---
@@ -216,7 +232,7 @@ async function guardarProducto(e) {
   const imagen_url = document.getElementById('prod-imagen').value;
 
   const { error } = await db.from('productos').insert([{
-    restaurante_id: usuarioActual.id,
+    restaurante_id: perfilActual.id,
     titulo,
     descripcion,
     precio_original,
@@ -238,7 +254,7 @@ async function guardarProducto(e) {
 
 async function cargarMisProductos() {
   const grid = document.getElementById('grid-mis-productos');
-  const { data, error } = await db.from('productos').select('*').eq('restaurante_id', usuarioActual.id);
+  const { data, error } = await db.from('productos').select('*').eq('restaurante_id', perfilActual.id);
 
   if (error || !data || data.length === 0) {
     grid.innerHTML = '<p>Aún no has publicado ningún producto o paquete.</p>';
