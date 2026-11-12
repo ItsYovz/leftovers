@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leftovers | Rescata sabor, reduce el desperdicio</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Librería oficial de Supabase vía CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- Encabezado con tu Logo -->
+  <header class="navbar">
+    <div class="container nav-content">
+      <div class="brand">
+        <img src="logo.png" alt="Logo Leftovers" class="logo" onerror="this.style.display='none'">
+        <div>
+          <h1>Leftovers</h1>
+          <p class="slogan">Rescata sabor, reduce el desperdicio[cite: 1]</p>
+        </div>
+      </div>
+      <span class="badge-ciudad">📍 Ciudad Obregón, Son.[cite: 1]</span>
+    </div>
+  </header>
+
+  <!-- Banner Principal -->
+  <section class="hero">
+    <div class="container">
+      <h2>Comida local deliciosa con 50% a 70% de descuento[cite: 1]</h2>
+      <p>Rescata paquetes sorpresa con excedentes del día en perfecto estado de panaderías, cafeterías, fruterías y restaurantes locales[cite: 1].</p>
+    </div>
+  </section>
+
+  <!-- Catálogo de Paquetes y Filtros -->
+  <main class="container main-content">
+    <div class="section-header">
+      <h3>🛍️ Paquetes disponibles hoy</h3>
+      <div class="filtros">
+        <button class="filtro-btn activo" onclick="filtrarCategoria('Todos', this)">Todos</button>
+        <button class="filtro-btn" onclick="filtrarCategoria('Panadería', this)">Panaderías[cite: 1]</button>
+        <button class="filtro-btn" onclick="filtrarCategoria('Cafetería', this)">Cafeterías[cite: 1]</button>
+        <button class="filtro-btn" onclick="filtrarCategoria('Frutería', this)">Fruterías[cite: 1]</button>
+        <button class="filtro-btn" onclick="filtrarCategoria('Restaurante', this)">Restaurantes[cite: 1]</button>
+      </div>
+    </div>
+
+    <!-- Grid donde se cargan los paquetes de Supabase -->
+    <div id="grid-paquetes" class="grid-paquetes">
+      <p class="mensaje-carga">Cargando paquetes disponibles...</p>
+    </div>
+  </main>
+
+  <!-- Ventana Modal para Reservar -->
+  <div id="modal-reserva" class="modal hidden">
+    <div class="modal-box">
+      <div id="form-container">
+        <h3 id="modal-titulo">Reservar paquete</h3>
+        <p id="modal-subtitulo" class="modal-sub">Pagas al recoger en el local.</p>
+        
+        <form id="form-reserva">
+          <label for="nombre-cliente">Tu nombre completo</label>
+          <input type="text" id="nombre-cliente" placeholder="Ej. Jose Chavez" required>
+
+          <label for="telefono-cliente">Tu WhatsApp / Teléfono</label>
+          <input type="tel" id="telefono-cliente" placeholder="Ej. 6441234567" required>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+            <button type="submit" class="btn-confirmar" id="btn-submit-reserva">Confirmar reserva</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Pantalla de éxito tras apartar -->
+      <div id="exito-container" class="hidden text-center">
+        <div class="check-icon">✅</div>
+        <h3>¡Paquete Reservado!</h3>
+        <p id="texto-exito"></p>
+        <a id="link-whatsapp" href="#" target="_blank" class="btn-whatsapp">
+          Confirmar por WhatsApp con el local[cite: 1]
+        </a>
+        <button type="button" class="btn-cerrar-link" onclick="cerrarModal()">Cerrar ventana</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
