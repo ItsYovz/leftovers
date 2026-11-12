@@ -4,60 +4,80 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leftovers | Rescata sabor, reduce el desperdicio</title>
+  <!-- Fuente moderna y amigable -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-  <!-- Navbar -->
+  <!-- Navbar con efecto vidrio (Glassmorphism) -->
   <header class="navbar">
     <div class="container nav-content">
       <div class="brand">
-        <img src="logo.png" alt="Leftovers Logo" class="logo" onerror="this.style.display='none'">
+        <div class="logo-wrapper">
+          <img src="logo.png" alt="Leftovers Logo" class="logo" onerror="this.style.display='none'">
+        </div>
         <div>
           <h1>Leftovers</h1>
-          <p class="slogan">Rescata sabor, reduce el desperdicio.</p>
+          <p class="slogan">Rescata sabor, reduce el desperdicio[cite: 1]</p>
         </div>
       </div>
       <div class="nav-auth" id="nav-auth-container">
-        <!-- Se llena con JS según la sesión -->
+        <!-- Se llena dinámicamente -->
       </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
+  <!-- Hero Section con degradado orgánico y animación -->
   <section class="hero" id="hero-section">
-    <div class="container">
-      <h2>Comida local deliciosa con 50% a 70% de descuento.</h2>
-      <p>Conectamos establecimientos locales con consumidores para rescatar excedentes diarios, cuidar tu economía y proteger el medio ambiente.</p>
+    <div class="hero-bg-shapes"></div>
+    <div class="container hero-content animate-fade-up">
+      <span class="pill-badge">
+        <span class="pulse-dot"></span> Ciudad Obregón, Sonora[cite: 1]
+      </span>
+      <h2>Comida local deliciosa con <span>50% a 70% de descuento</span>[cite: 1]</h2>
+      <p>Rescata paquetes sorpresa con excedentes del día en perfecto estado[cite: 1]. Ahorra dinero, apoya negocios locales y reduce el desperdicio[cite: 1].</p>
     </div>
   </section>
 
   <!-- Contenido Principal -->
   <main class="container main-content">
     
-    <!-- VISTA CLIENTE / GENERAL: Catálogo de productos -->
-    <div id="vista-catalogo">
+    <!-- VISTA CLIENTE / GENERAL -->
+    <div id="vista-catalogo" class="animate-fade-up" style="animation-delay: 0.1s;">
       <div class="section-header">
-        <h3>🛍️ Paquetes disponibles en Ciudad Obregón.</h3>
+        <div>
+          <h3>🛍️ Paquetes listos para rescatar hoy</h3>
+          <p class="section-sub">Aparta tu paquete y recógelo directo en el establecimiento[cite: 1]</p>
+        </div>
       </div>
+
       <div id="grid-productos" class="grid-cards">
-        <p class="mensaje-carga">Cargando productos...</p>
+        <div class="loader-container">
+          <div class="spinner"></div>
+          <p>Buscando paquetes frescos cerca de ti...</p>
+        </div>
       </div>
     </div>
 
-    <!-- VISTA RESTAURANTE: Panel para agregar productos -->
-    <div id="vista-restaurante" class="hidden">
+    <!-- VISTA RESTAURANTE -->
+    <div id="vista-restaurante" class="hidden animate-fade-up">
       <div class="panel-restaurante-header">
         <div>
-          <h2>Panel de Negocio</h2>
-          <p id="nombre-negocio-label">Gestiona tus excedentes y paquetes del día.</p>
+          <span class="badge-negocio">Modo Comercio Local[cite: 1]</span>
+          <h2>Panel de Gestión</h2>
+          <p id="nombre-negocio-label">Publica tus excedentes del día en segundos[cite: 1].</p>
         </div>
-        <button class="btn-primario" onclick="abrirModalProducto()">+ Publicar Producto / Paquete</button>
+        <button class="btn-primario btn-lg" onclick="abrirModalProducto()">
+          <span>+</span> Publicar Nuevo Paquete
+        </button>
       </div>
 
-      <h3 style="margin-top: 30px; margin-bottom: 15px;">Tus publicaciones activas</h3>
+      <h3 class="subtitulo-seccion">Tus paquetes publicados</h3>
       <div id="grid-mis-productos" class="grid-cards">
         <p class="mensaje-carga">Cargando tus productos...</p>
       </div>
@@ -65,12 +85,20 @@
 
   </main>
 
-  <!-- MODAL DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
-  <div id="modal-auth" class="modal hidden">
-    <div class="modal-box">
+  <!-- Footer amigable -->
+  <footer class="footer">
+    <div class="container">
+      <p><strong>Leftovers</strong> — Rescata sabor, reduce el desperdicio[cite: 1].</p>
+      <p class="footer-sub">Impulsando el consumo sustentable en Ciudad Obregón[cite: 1].</p>
+    </div>
+  </footer>
+
+  <!-- MODAL DE AUTENTICACIÓN -->
+  <div id="modal-auth" class="modal hidden" onclick="cerrarSiClickFuera(event, 'modal-auth')">
+    <div class="modal-box animate-modal">
       <div class="modal-header-tabs">
         <button id="tab-login" class="tab-btn activo" onclick="cambiarTabAuth('login')">Iniciar Sesión</button>
-        <button id="tab-registro" class="tab-btn" onclick="cambiarTabAuth('registro')">Registrarse</button>
+        <button id="tab-registro" class="tab-btn" onclick="cambiarTabAuth('registro')">Crear Cuenta</button>
       </div>
 
       <!-- Formulario Login -->
@@ -78,73 +106,80 @@
         <label>Correo electrónico</label>
         <input type="email" id="login-email" required placeholder="tucorreo@email.com">
         <label>Contraseña</label>
-        <input type="password" id="login-password" required placeholder="********">
-        <button type="submit" class="btn-primario w-full">Entrar</button>
+        <input type="password" id="login-password" required placeholder="••••••••">
+        <button type="submit" class="btn-primario w-full">Entrar a Leftovers</button>
       </form>
 
       <!-- Formulario Registro -->
       <form id="form-registro" onsubmit="manejarRegistro(event)" class="auth-form hidden">
-        <label>Tipo de cuenta</label>
-        <select id="reg-tipo" onchange="toggleCamposNegocio()" class="input-field">
-          <option value="cliente">Cliente (Quiero comprar comida)</option>
-          <option value="restaurante">Restaurante / Comercio local</option>
+        <label>¿Cómo usarás Leftovers?</label>
+        <select id="reg-tipo" onchange="toggleCamposNegocio()">
+          <option value="cliente">🙋‍♂️ Soy Cliente (Quiero rescatar comida)</option>
+          <option value="restaurante">🏪 Soy Restaurante / Comercio local[cite: 1]</option>
         </select>
 
-        <label id="label-nombre">Nombre completo</label>
-        <input type="text" id="reg-nombre" required placeholder="Ej. Juan Espizona">
+        <label id="label-nombre">Tu nombre completo</label>
+        <input type="text" id="reg-nombre" required placeholder="Ej. Jose Chavez">
 
         <!-- Campos extra para Restaurante -->
-        <div id="campos-restaurante" class="hidden">
+        <div id="campos-restaurante" class="hidden campos-extra-anim">
           <label>Dirección del establecimiento</label>
-          <input type="text" id="reg-direccion" placeholder="Ej. Calle Guerrero #412, Centro[cite: 1]">
-          <label>WhatsApp de contacto</label>
+          <input type="text" id="reg-direccion" placeholder="Ej. Calle Guerrero #412, Centro">
+          <label>WhatsApp de contacto (10 dígitos)</label>
           <input type="tel" id="reg-whatsapp" placeholder="Ej. 6441234567">
         </div>
 
         <label>Correo electrónico</label>
         <input type="email" id="reg-email" required placeholder="tucorreo@email.com">
         
-        <label>Contraseña</label>
-        <input type="password" id="reg-password" required placeholder="********">
+        <label>Crea una contraseña</label>
+        <input type="password" id="reg-password" required placeholder="••••••••">
 
-        <button type="submit" class="btn-primario w-full">Crear Cuenta</button>
+        <button type="submit" class="btn-primario w-full">Registrarme ahora</button>
       </form>
 
-      <button class="btn-cerrar-modal" onclick="cerrarModalAuth()">Cancelar</button>
+      <button class="btn-cerrar-modal" onclick="cerrarModalAuth()">Cerrar ventana</button>
     </div>
   </div>
 
-  <!-- MODAL PARA QUE EL RESTAURANTE AGREGUE PRODUCTOS -->
-  <div id="modal-producto" class="modal hidden">
-    <div class="modal-box">
-      <h3>Publicar Paquete u Oferta</h3>
+  <!-- MODAL PARA PUBLICAR PRODUCTO -->
+  <div id="modal-producto" class="modal hidden" onclick="cerrarSiClickFuera(event, 'modal-producto')">
+    <div class="modal-box animate-modal">
+      <h3>📦 Nuevo Paquete Sorpresa</h3>
+      <p class="modal-desc">Publica tus excedentes del día para que los usuarios los reserven[cite: 1].</p>
+      
       <form id="form-nuevo-producto" onsubmit="guardarProducto(event)" class="auth-form">
-        <label>Título del paquete</label>
-        <input type="text" id="prod-titulo" required placeholder="Ej. Paquete sorpresa de pan dulce[cite: 1]">
+        <label>Nombre del paquete o platillo</label>
+        <input type="text" id="prod-titulo" required placeholder="Ej. Paquete Sorpresa Pan Dulce[cite: 1]">
         
-        <label>Descripción</label>
-        <textarea id="prod-desc" rows="2" placeholder="Ej. Incluye 6 piezas variadas del día..." required class="input-field"></textarea>
+        <label>¿Qué incluye o qué deben saber?</label>
+        <textarea id="prod-desc" rows="2" placeholder="Ej. Bolsa mixta con 6 piezas recién horneadas..." required></textarea>
         
         <div class="form-row">
           <div>
-            <label>Precio original ($)</label>
+            <label>Precio normal ($)</label>
             <input type="number" id="prod-precio-orig" step="0.01" required placeholder="120">
           </div>
           <div>
-            <label>Precio con descuento ($)</label>
+            <label>Precio Leftovers ($)</label>
             <input type="number" id="prod-precio-desc" step="0.01" required placeholder="45">
           </div>
         </div>
 
-        <label>Cantidad disponible</label>
-        <input type="number" id="prod-stock" value="1" min="1" required class="input-field">
-
-        <label>URL de la imagen del producto</label>
-        <input type="url" id="prod-imagen" placeholder="https://ejemplo.com/foto.jpg" required>
+        <div class="form-row">
+          <div>
+            <label>Paquetes disponibles</label>
+            <input type="number" id="prod-stock" value="3" min="1" required>
+          </div>
+          <div>
+            <label>Enlace de foto (URL)</label>
+            <input type="url" id="prod-imagen" placeholder="https://..." required>
+          </div>
+        </div>
 
         <div class="modal-actions">
           <button type="button" class="btn-secundario" onclick="cerrarModalProducto()">Cancelar</button>
-          <button type="submit" class="btn-primario">Publicar</button>
+          <button type="submit" class="btn-primario">Publicar paquete</button>
         </div>
       </form>
     </div>
