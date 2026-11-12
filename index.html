@@ -5,83 +5,148 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leftovers | Rescata sabor, reduce el desperdicio</title>
   <link rel="stylesheet" href="styles.css">
-  <!-- Librería oficial de Supabase vía CDN -->
+  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-  <!-- Encabezado con tu Logo -->
+  <!-- Navbar -->
   <header class="navbar">
     <div class="container nav-content">
       <div class="brand">
-        <img src="logo.png" alt="Logo Leftovers" class="logo" onerror="this.style.display='none'">
+        <img src="logo.png" alt="Leftovers Logo" class="logo" onerror="this.style.display='none'">
         <div>
           <h1>Leftovers</h1>
           <p class="slogan">Rescata sabor, reduce el desperdicio[cite: 1]</p>
         </div>
       </div>
-      <span class="badge-ciudad">📍 Ciudad Obregón, Son.[cite: 1]</span>
+      <div class="nav-auth" id="nav-auth-container">
+        <!-- Se llena con JS según la sesión -->
+      </div>
     </div>
   </header>
 
-  <!-- Banner Principal -->
-  <section class="hero">
+  <!-- Hero Section -->
+  <section class="hero" id="hero-section">
     <div class="container">
       <h2>Comida local deliciosa con 50% a 70% de descuento[cite: 1]</h2>
-      <p>Rescata paquetes sorpresa con excedentes del día en perfecto estado de panaderías, cafeterías, fruterías y restaurantes locales[cite: 1].</p>
+      <p>Conectamos establecimientos locales con consumidores para rescatar excedentes diarios, cuidar tu economía y proteger el medio ambiente[cite: 1].</p>
     </div>
   </section>
 
-  <!-- Catálogo de Paquetes y Filtros -->
+  <!-- Contenido Principal -->
   <main class="container main-content">
-    <div class="section-header">
-      <h3>🛍️ Paquetes disponibles hoy</h3>
-      <div class="filtros">
-        <button class="filtro-btn activo" onclick="filtrarCategoria('Todos', this)">Todos</button>
-        <button class="filtro-btn" onclick="filtrarCategoria('Panadería', this)">Panaderías[cite: 1]</button>
-        <button class="filtro-btn" onclick="filtrarCategoria('Cafetería', this)">Cafeterías[cite: 1]</button>
-        <button class="filtro-btn" onclick="filtrarCategoria('Frutería', this)">Fruterías[cite: 1]</button>
-        <button class="filtro-btn" onclick="filtrarCategoria('Restaurante', this)">Restaurantes[cite: 1]</button>
+    
+    <!-- VISTA CLIENTE / GENERAL: Catálogo de productos -->
+    <div id="vista-catalogo">
+      <div class="section-header">
+        <h3>🛍️ Paquetes disponibles en Ciudad Obregón[cite: 1]</h3>
+      </div>
+      <div id="grid-productos" class="grid-cards">
+        <p class="mensaje-carga">Cargando productos...</p>
       </div>
     </div>
 
-    <!-- Grid donde se cargan los paquetes de Supabase -->
-    <div id="grid-paquetes" class="grid-paquetes">
-      <p class="mensaje-carga">Cargando paquetes disponibles...</p>
+    <!-- VISTA RESTAURANTE: Panel para agregar productos -->
+    <div id="vista-restaurante" class="hidden">
+      <div class="panel-restaurante-header">
+        <div>
+          <h2>Panel de Negocio</h2>
+          <p id="nombre-negocio-label">Gestiona tus excedentes y paquetes del día.</p>
+        </div>
+        <button class="btn-primario" onclick="abrirModalProducto()">+ Publicar Producto / Paquete</button>
+      </div>
+
+      <h3 style="margin-top: 30px; margin-bottom: 15px;">Tus publicaciones activas</h3>
+      <div id="grid-mis-productos" class="grid-cards">
+        <p class="mensaje-carga">Cargando tus productos...</p>
+      </div>
     </div>
+
   </main>
 
-  <!-- Ventana Modal para Reservar -->
-  <div id="modal-reserva" class="modal hidden">
+  <!-- MODAL DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
+  <div id="modal-auth" class="modal hidden">
     <div class="modal-box">
-      <div id="form-container">
-        <h3 id="modal-titulo">Reservar paquete</h3>
-        <p id="modal-subtitulo" class="modal-sub">Pagas al recoger en el local.</p>
+      <div class="modal-header-tabs">
+        <button id="tab-login" class="tab-btn activo" onclick="cambiarTabAuth('login')">Iniciar Sesión</button>
+        <button id="tab-registro" class="tab-btn" onclick="cambiarTabAuth('registro')">Registrarse</button>
+      </div>
+
+      <!-- Formulario Login -->
+      <form id="form-login" onsubmit="manejarLogin(event)" class="auth-form">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-email" required placeholder="tucorreo@email.com">
+        <label>Contraseña</label>
+        <input type="password" id="login-password" required placeholder="********">
+        <button type="submit" class="btn-primario w-full">Entrar</button>
+      </form>
+
+      <!-- Formulario Registro -->
+      <form id="form-registro" onsubmit="manejarRegistro(event)" class="auth-form hidden">
+        <label>Tipo de cuenta</label>
+        <select id="reg-tipo" onchange="toggleCamposNegocio()" class="input-field">
+          <option value="cliente">Cliente (Quiero comprar comida)</option>
+          <option value="restaurante">Restaurante / Comercio local</option>
+        </select>
+
+        <label id="label-nombre">Nombre completo</label>
+        <input type="text" id="reg-nombre" required placeholder="Ej. Jose Chavez">
+
+        <!-- Campos extra para Restaurante -->
+        <div id="campos-restaurante" class="hidden">
+          <label>Dirección del establecimiento</label>
+          <input type="text" id="reg-direccion" placeholder="Ej. Calle Guerrero #412, Centro[cite: 1]">
+          <label>WhatsApp de contacto</label>
+          <input type="tel" id="reg-whatsapp" placeholder="Ej. 6441234567">
+        </div>
+
+        <label>Correo electrónico</label>
+        <input type="email" id="reg-email" required placeholder="tucorreo@email.com">
         
-        <form id="form-reserva">
-          <label for="nombre-cliente">Tu nombre completo</label>
-          <input type="text" id="nombre-cliente" placeholder="Ej. Jose Chavez" required>
+        <label>Contraseña</label>
+        <input type="password" id="reg-password" required placeholder="********">
 
-          <label for="telefono-cliente">Tu WhatsApp / Teléfono</label>
-          <input type="tel" id="telefono-cliente" placeholder="Ej. 6441234567" required>
+        <button type="submit" class="btn-primario w-full">Crear Cuenta</button>
+      </form>
 
-          <div class="modal-actions">
-            <button type="button" class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
-            <button type="submit" class="btn-confirmar" id="btn-submit-reserva">Confirmar reserva</button>
+      <button class="btn-cerrar-modal" onclick="cerrarModalAuth()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- MODAL PARA QUE EL RESTAURANTE AGREGUE PRODUCTOS -->
+  <div id="modal-producto" class="modal hidden">
+    <div class="modal-box">
+      <h3>Publicar Paquete u Oferta</h3>
+      <form id="form-nuevo-producto" onsubmit="guardarProducto(event)" class="auth-form">
+        <label>Título del paquete</label>
+        <input type="text" id="prod-titulo" required placeholder="Ej. Paquete sorpresa de pan dulce[cite: 1]">
+        
+        <label>Descripción</label>
+        <textarea id="prod-desc" rows="2" placeholder="Ej. Incluye 6 piezas variadas del día..." required class="input-field"></textarea>
+        
+        <div class="form-row">
+          <div>
+            <label>Precio original ($)</label>
+            <input type="number" id="prod-precio-orig" step="0.01" required placeholder="120">
           </div>
-        </form>
-      </div>
+          <div>
+            <label>Precio con descuento ($)</label>
+            <input type="number" id="prod-precio-desc" step="0.01" required placeholder="45">
+          </div>
+        </div>
 
-      <!-- Pantalla de éxito tras apartar -->
-      <div id="exito-container" class="hidden text-center">
-        <div class="check-icon">✅</div>
-        <h3>¡Paquete Reservado!</h3>
-        <p id="texto-exito"></p>
-        <a id="link-whatsapp" href="#" target="_blank" class="btn-whatsapp">
-          Confirmar por WhatsApp con el local[cite: 1]
-        </a>
-        <button type="button" class="btn-cerrar-link" onclick="cerrarModal()">Cerrar ventana</button>
-      </div>
+        <label>Cantidad disponible</label>
+        <input type="number" id="prod-stock" value="1" min="1" required class="input-field">
+
+        <label>URL de la imagen del producto</label>
+        <input type="url" id="prod-imagen" placeholder="https://ejemplo.com/foto.jpg" required>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secundario" onclick="cerrarModalProducto()">Cancelar</button>
+          <button type="submit" class="btn-primario">Publicar</button>
+        </div>
+      </form>
     </div>
   </div>
 
