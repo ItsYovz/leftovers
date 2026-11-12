@@ -1,6 +1,6 @@
 // 1. PEGA AQUÍ TUS CREDENCIALES DE SUPABASE
-const SUPABASE_URL = 'https://tu-proyecto.supabase.co';
-const SUPABASE_ANON_KEY = 'tu-llave-anon-publica';
+const SUPABASE_URL = 'https://anubucilnxgiisikmclm.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_3dUquoyoX46LTtGLpXxUdw_NJVLS8p2';
 
 // Inicializar cliente
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
