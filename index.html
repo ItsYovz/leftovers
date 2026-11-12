@@ -4,17 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leftovers | Rescata sabor, reduce el desperdicio</title>
-  <!-- Fuente moderna y amigable -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-  <!-- Navbar con efecto vidrio (Glassmorphism) -->
+  <!-- Navbar -->
   <header class="navbar">
     <div class="container nav-content">
       <div class="brand">
@@ -23,7 +21,7 @@
         </div>
         <div>
           <h1>Leftovers</h1>
-          <p class="slogan">Rescata sabor, reduce el desperdicio.</p>
+          <p class="slogan">Rescata sabor, reduce el desperdicio</p>
         </div>
       </div>
       <div class="nav-auth" id="nav-auth-container">
@@ -32,12 +30,12 @@
     </div>
   </header>
 
-  <!-- Hero Section con degradado orgánico y animación -->
+  <!-- Hero Section -->
   <section class="hero" id="hero-section">
     <div class="hero-bg-shapes"></div>
     <div class="container hero-content animate-fade-up">
       <span class="pill-badge">
-        <span class="pulse-dot"></span> Ciudad Obregón, Sonora.
+        <span class="pulse-dot"></span> Ciudad Obregón, Sonora
       </span>
       <h2>Comida local deliciosa con <span>50% a 70% de descuento</span></h2>
       <p>Rescata paquetes sorpresa con excedentes del día en perfecto estado. Ahorra dinero, apoya negocios locales y reduce el desperdicio.</p>
@@ -52,7 +50,7 @@
       <div class="section-header">
         <div>
           <h3>🛍️ Paquetes listos para rescatar hoy</h3>
-          <p class="section-sub">Aparta tu paquete y recógelo directo en el establecimiento.</p>
+          <p class="section-sub">Compra en línea y recoge tu paquete directo en el establecimiento</p>
         </div>
       </div>
 
@@ -68,7 +66,7 @@
     <div id="vista-restaurante" class="hidden animate-fade-up">
       <div class="panel-restaurante-header">
         <div>
-          <span class="badge-negocio">Modo Comercio Local.</span>
+          <span class="badge-negocio">Modo Comercio Local</span>
           <h2>Panel de Gestión</h2>
           <p id="nombre-negocio-label">Publica tus excedentes del día en segundos.</p>
         </div>
@@ -85,7 +83,7 @@
 
   </main>
 
-  <!-- Footer amigable -->
+  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <p><strong>Leftovers</strong> — Rescata sabor, reduce el desperdicio.</p>
@@ -101,7 +99,6 @@
         <button id="tab-registro" class="tab-btn" onclick="cambiarTabAuth('registro')">Crear Cuenta</button>
       </div>
 
-      <!-- Formulario Login -->
       <form id="form-login" onsubmit="manejarLogin(event)" class="auth-form">
         <label>Correo electrónico</label>
         <input type="email" id="login-email" required placeholder="tucorreo@email.com">
@@ -110,23 +107,19 @@
         <button type="submit" class="btn-primario w-full">Entrar a Leftovers</button>
       </form>
 
-      <!-- Formulario Registro -->
       <form id="form-registro" onsubmit="manejarRegistro(event)" class="auth-form hidden">
         <label>¿Cómo usarás Leftovers?</label>
         <select id="reg-tipo" onchange="toggleCamposNegocio()">
-          <option value="cliente">🙋‍♂️ Soy Cliente (Quiero comprar comida)</option>
-          <option value="restaurante">🏪 Soy Restaurante / Comercio local.</option>
+          <option value="cliente">🙋‍♂️ Soy Cliente (Quiero rescatar comida)</option>
+          <option value="restaurante">🏪 Soy Restaurante / Comercio local</option>
         </select>
 
         <label id="label-nombre">Tu nombre completo</label>
         <input type="text" id="reg-nombre" required placeholder="Ej. Jose Chavez">
 
-        <!-- Campos extra para Restaurante -->
-        <div id="campos-restaurante" class="hidden campos-extra-anim">
+        <div id="campos-restaurante" class="hidden">
           <label>Dirección del establecimiento</label>
           <input type="text" id="reg-direccion" placeholder="Ej. Calle Guerrero #412, Centro">
-          <label>WhatsApp de contacto (10 dígitos)</label>
-          <input type="tel" id="reg-whatsapp" placeholder="Ej. 6441234567">
         </div>
 
         <label>Correo electrónico</label>
@@ -142,15 +135,15 @@
     </div>
   </div>
 
-  <!-- MODAL PARA PUBLICAR PRODUCTO -->
+  <!-- MODAL PARA PUBLICAR PRODUCTO (RESTAURANTE) -->
   <div id="modal-producto" class="modal hidden" onclick="cerrarSiClickFuera(event, 'modal-producto')">
     <div class="modal-box animate-modal">
       <h3>📦 Nuevo Paquete Sorpresa</h3>
-      <p class="modal-desc">Publica tus excedentes del día para que los usuarios los reserven.</p>
+      <p class="modal-desc">Publica tus excedentes del día para que los usuarios los compren.</p>
       
       <form id="form-nuevo-producto" onsubmit="guardarProducto(event)" class="auth-form">
         <label>Nombre del paquete o platillo</label>
-        <input type="text" id="prod-titulo" required placeholder="Ej. Paquete Sorpresa Pan Dulce.">
+        <input type="text" id="prod-titulo" required placeholder="Ej. Paquete Sorpresa Pan Dulce">
         
         <label>¿Qué incluye o qué deben saber?</label>
         <textarea id="prod-desc" rows="2" placeholder="Ej. Bolsa mixta con 6 piezas recién horneadas..." required></textarea>
@@ -182,6 +175,116 @@
           <button type="submit" class="btn-primario">Publicar paquete</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE CHECKOUT / COMPRA EN LÍNEA SIMULADA (CLIENTE) -->
+  <div id="modal-checkout" class="modal hidden" onclick="cerrarSiClickFuera(event, 'modal-checkout')">
+    <div class="modal-box modal-checkout-box animate-modal">
+      
+      <!-- Paso 1: Formulario de Pago y Detalles -->
+      <div id="checkout-paso-pago">
+        <div class="checkout-header">
+          <span class="badge-seguro">🔒 Pago en línea seguro </span>
+          <h3 id="checkout-prod-titulo">Finalizar Compra</h3>
+          <p id="checkout-restaurante-info" class="modal-desc"></p>
+        </div>
+
+        <form id="form-checkout" onsubmit="procesarCompraSimulada(event)" class="auth-form">
+          
+          <!-- Resumen de cantidad y horario -->
+          <div class="resumen-compra-box">
+            <div class="form-row">
+              <div>
+                <label>Cantidad a comprar</label>
+                <input type="number" id="checkout-cantidad" value="1" min="1" required onchange="recalcularTotalCheckout()">
+              </div>
+              <div>
+                <label>Horario de recolección</label>
+                <select id="checkout-horario" required>
+                  <option value="Hoy 18:00 - 19:00">Hoy 18:00 - 19:00</option>
+                  <option value="Hoy 19:00 - 20:00">Hoy 19:00 - 20:00</option>
+                  <option value="Hoy 20:00 - 21:00">Hoy 20:00 - 21:00</option>
+                </select>
+              </div>
+            </div>
+            <div class="total-linea">
+              <span>Total a pagar:</span>
+              <strong id="checkout-total-precio">$0.00 MXN</strong>
+            </div>
+          </div>
+
+          <!-- Datos de Facturación / Tarjeta Simulada -->
+          <label>Nombre completo del titular de la tarjeta</label>
+          <input type="text" id="checkout-titular" required placeholder="Como aparece en la tarjeta">
+
+          <label>Número de tarjeta (Débito o Crédito)</label>
+          <input type="text" id="checkout-tarjeta" required maxlength="19" placeholder="4555 •••• •••• 1234" oninput="formatearNumeroTarjeta(this)">
+
+          <div class="form-row">
+            <div>
+              <label>Vencimiento (MM/AA)</label>
+              <input type="text" id="checkout-exp" required maxlength="5" placeholder="08/29" oninput="formatearExpiracion(this)">
+            </div>
+            <div>
+              <label>Código de seguridad (CVV)</label>
+              <input type="password" id="checkout-cvv" required maxlength="4" placeholder="123">
+            </div>
+          </div>
+
+          <label>Teléfono de contacto (para avisos del pedido)</label>
+          <input type="tel" id="checkout-telefono" required placeholder="Ej. 6441234567">
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secundario" onclick="cerrarModalCheckout()">Cancelar</button>
+            <button type="submit" class="btn-primario" id="btn-pagar-ahora">Confirmar y Pagar</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Paso 2: Animación de procesando pago -->
+      <div id="checkout-paso-procesando" class="hidden text-center" style="padding: 35px 10px;">
+        <div class="spinner" style="width: 48px; height: 48px; border-width: 4px;"></div>
+        <h3 style="margin-top: 15px; color: var(--verde-oscuro);">Procesando tu pago...</h3>
+        <p class="modal-desc">Validando transacción con el banco (simulación)</p>
+      </div>
+
+      <!-- Paso 3: Ticket / Comprobante Digital -->
+      <div id="checkout-paso-exito" class="hidden text-center">
+        <div class="ticket-check">✅</div>
+        <h3 style="color: var(--verde-oscuro);">¡Compra Exitosa!</h3>
+        <p class="modal-desc">Muestra este comprobante digital en el local para recoger tu pedido.</p>
+
+        <div class="ticket-digital">
+          <div class="ticket-fila">
+            <span>Folio de orden:</span>
+            <strong id="ticket-folio" style="color: var(--verde-hover);">#LFT-0000</strong>
+          </div>
+          <div class="ticket-fila">
+            <span>Establecimiento:</span>
+            <strong id="ticket-local">Local</strong>
+          </div>
+          <div class="ticket-fila">
+            <span>Dirección:</span>
+            <span id="ticket-direccion">Dirección</span>
+          </div>
+          <div class="ticket-fila">
+            <span>Producto:</span>
+            <span id="ticket-producto">Paquete</span>
+          </div>
+          <div class="ticket-fila">
+            <span>Recolección:</span>
+            <strong id="ticket-horario">Hoy</strong>
+          </div>
+          <div class="ticket-fila ticket-total">
+            <span>Total Pagado:</span>
+            <strong id="ticket-total">$0.00 MXN</strong>
+          </div>
+        </div>
+
+        <button type="button" class="btn-primario w-full" onclick="cerrarModalCheckout()">Listo, volver al catálogo</button>
+      </div>
+
     </div>
   </div>
 

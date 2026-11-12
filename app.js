@@ -5,6 +5,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_3dUquoyoX46LTtGLpXxUdw_NJVLS8p2';
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let perfilActual = null;
+let productoEnCompra = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   verificarSesion();
@@ -89,11 +90,10 @@ async function manejarRegistro(e) {
   const nombre = document.getElementById('reg-nombre').value;
   const tipo = document.getElementById('reg-tipo').value;
   const direccion = document.getElementById('reg-direccion').value || null;
-  const whatsapp = document.getElementById('reg-whatsapp').value || null;
 
   const { data, error } = await db
     .from('perfiles')
-    .insert([{ nombre, correo, password, tipo, direccion, whatsapp }])
+    .insert([{ nombre, correo, password, tipo, direccion }])
     .select()
     .single();
 
@@ -136,18 +136,22 @@ function cerrarSesion() {
   window.location.reload();
 }
 
-// --- CATÁLOGO DE CLIENTE ---
+// --- CATÁLOGO Y CHECKOUT SIMULADO ---
+let listaProductosGlobal = [];
+
 async function cargarProductosCatalogo() {
   const grid = document.getElementById('grid-productos');
   const { data, error } = await db.from('productos').select(`
     *,
-    perfiles (nombre, direccion, whatsapp)
+    perfiles (nombre, direccion)
   `).gt('cantidad_disponible', 0);
 
   if (error || !data || data.length === 0) {
     grid.innerHTML = '<p style="color:#71717a;">Aún no hay paquetes disponibles hoy. ¡Vuelve más tarde!</p>';
     return;
   }
+
+  listaProductosGlobal = data;
 
   grid.innerHTML = data.map((prod, index) => {
     const ahorro = Math.round(((prod.precio_original - prod.precio_descuento) / prod.precio_original) * 100);
@@ -176,7 +180,7 @@ async function cargarProductosCatalogo() {
           <div style="text-align: right;">
             <span class="stock-badge">Quedan ${prod.cantidad_disponible}</span>
             <br>
-            <button class="btn-primario" style="padding: 8px 14px; font-size: 0.85rem;" onclick="reservarProducto('${prod.id}', '${prod.perfiles?.whatsapp}', '${prod.titulo}', ${prod.cantidad_disponible})">Rescatar</button>
+            <button class="btn-primario" style="padding: 8px 14px; font-size: 0.85rem;" onclick="abrirCheckout('${prod.id}')">Comprar ahora</button>
           </div>
         </div>
       </div>
@@ -184,31 +188,116 @@ async function cargarProductosCatalogo() {
   }).join('');
 }
 
-async function reservarProducto(prodId, whatsapp, titulo, stockActual) {
+function abrirCheckout(prodId) {
   if (!perfilActual) {
-    alert('Inicia sesión como cliente para rescatar este paquete.');
+    alert('Inicia sesión como cliente para comprar este paquete.');
     abrirModalAuth('login');
     return;
   }
 
-  await db.from('reservas').insert([{
-    producto_id: prodId,
-    cliente_id: perfilActual.id,
-    cantidad: 1
-  }]);
+  productoEnCompra = listaProductosGlobal.find(p => p.id === prodId);
+  if (!productoEnCompra) return;
 
-  await db.from('productos')
-    .update({ cantidad_disponible: stockActual - 1 })
-    .eq('id', prodId);
+  // Resetear vistas del modal
+  document.getElementById('checkout-paso-pago').classList.remove('hidden');
+  document.getElementById('checkout-paso-procesando').classList.add('hidden');
+  document.getElementById('checkout-paso-exito').classList.add('hidden');
+  document.getElementById('form-checkout').reset();
 
-  if (whatsapp && whatsapp !== 'null' && whatsapp !== '') {
-    const mensaje = encodeURIComponent(`Hola, soy ${perfilActual.nombre} y acabo de rescatar el paquete "${titulo}" en Leftovers.`);
-    window.open(`https://wa.me/${whatsapp}?text=${mensaje}`, '_blank');
-  } else {
-    alert('¡Paquete rescatado con éxito! Pasa a recogerlo al establecimiento.');
+  // Llenar datos del producto
+  document.getElementById('checkout-prod-titulo').textContent = productoEnCompra.titulo;
+  document.getElementById('checkout-restaurante-info').textContent = `${productoEnCompra.perfiles?.nombre} • ${productoEnCompra.perfiles?.direccion || 'Ciudad Obregón'}`;
+  
+  const inputCant = document.getElementById('checkout-cantidad');
+  inputCant.value = 1;
+  inputCant.max = productoEnCompra.cantidad_disponible;
+
+  document.getElementById('checkout-titular').value = perfilActual.nombre;
+  recalcularTotalCheckout();
+
+  document.getElementById('modal-checkout').classList.remove('hidden');
+}
+
+function cerrarModalCheckout() {
+  document.getElementById('modal-checkout').classList.add('hidden');
+}
+
+function recalcularTotalCheckout() {
+  if (!productoEnCompra) return;
+  const cant = parseInt(document.getElementById('checkout-cantidad').value) || 1;
+  const total = (cant * productoEnCompra.precio_descuento).toFixed(2);
+  document.getElementById('checkout-total-precio').textContent = `$${total} MXN`;
+}
+
+// Formateo visual de tarjeta (4555 1234 5678 9010)
+function formatearNumeroTarjeta(input) {
+  let valor = input.value.replace(/\D/g, '');
+  valor = valor.replace(/(.{4})/g, '$1 ').trim();
+  input.value = valor;
+}
+
+// Formateo visual de fecha MM/AA
+function formatearExpiracion(input) {
+  let valor = input.value.replace(/\D/g, '');
+  if (valor.length >= 2) {
+    valor = valor.substring(0, 2) + '/' + valor.substring(2, 4);
   }
+  input.value = valor;
+}
 
-  cargarProductosCatalogo();
+async function procesarCompraSimulada(e) {
+  e.preventDefault();
+  if (!productoEnCompra || !perfilActual) return;
+
+  const cantidad = parseInt(document.getElementById('checkout-cantidad').value);
+  const horario = document.getElementById('checkout-horario').value;
+  const tarjeta = document.getElementById('checkout-tarjeta').value.replace(/\s/g, '');
+  const ultimos4 = tarjeta.slice(-4) || '0000';
+  const totalPagado = (cantidad * productoEnCompra.precio_descuento).toFixed(2);
+  const folioGenerado = `LFT-${Math.floor(1000 + Math.random() * 9000)}`;
+
+  // Mostrar animación de procesando pago
+  document.getElementById('checkout-paso-pago').classList.add('hidden');
+  document.getElementById('checkout-paso-procesando').classList.remove('hidden');
+
+  // Simular tiempo de validación bancaria (1.5 segundos)
+  setTimeout(async () => {
+    // 1. Guardar compra en Supabase
+    const { error } = await db.from('reservas').insert([{
+      folio: folioGenerado,
+      producto_id: productoEnCompra.id,
+      cliente_id: perfilActual.id,
+      cantidad: cantidad,
+      total_pagado: totalPagado,
+      horario_recoleccion: horario,
+      ultimos_digitos_tarjeta: ultimos4
+    }]);
+
+    if (error) {
+      alert('Hubo un error al registrar la compra: ' + error.message);
+      cerrarModalCheckout();
+      return;
+    }
+
+    // 2. Descontar stock en Supabase
+    const nuevoStock = productoEnCompra.cantidad_disponible - cantidad;
+    await db.from('productos')
+      .update({ cantidad_disponible: nuevoStock })
+      .eq('id', productoEnCompra.id);
+
+    // 3. Llenar el ticket digital de éxito
+    document.getElementById('ticket-folio').textContent = `#${folioGenerado}`;
+    document.getElementById('ticket-local').textContent = productoEnCompra.perfiles?.nombre || 'Comercio Local';
+    document.getElementById('ticket-direccion').textContent = productoEnCompra.perfiles?.direccion || 'Ciudad Obregón';
+    document.getElementById('ticket-producto').textContent = `${cantidad}x ${productoEnCompra.titulo}`;
+    document.getElementById('ticket-horario').textContent = horario;
+    document.getElementById('ticket-total').textContent = `$${totalPagado} MXN (Terminación •••• ${ultimos4})`;
+
+    // Mostrar ticket y recargar catálogo de fondo
+    document.getElementById('checkout-paso-procesando').classList.add('hidden');
+    document.getElementById('checkout-paso-exito').classList.remove('hidden');
+    cargarProductosCatalogo();
+  }, 1500);
 }
 
 // --- PANEL DE RESTAURANTE ---
