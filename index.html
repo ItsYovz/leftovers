@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Mapa Interactivo Leaflet (Gratis y sin API Key) -->
+  <!-- Mapa Interactivo Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -15,7 +15,7 @@
 </head>
 <body>
 
-  <!-- Navbar con Logo más grande y destacado -->
+  <!-- Navbar -->
   <header class="navbar">
     <div class="container nav-content">
       <div class="brand" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="cursor: pointer;">
@@ -28,12 +28,12 @@
         </div>
       </div>
       <div class="nav-auth" id="nav-auth-container">
-        <!-- Se llena dinámicamente -->
+        <!-- Dinámico -->
       </div>
     </div>
   </header>
 
-  <!-- Hero Section Dinámico con Logo Protagonista -->
+  <!-- Hero Section -->
   <section class="hero" id="hero-section">
     <div class="hero-bg-shapes"></div>
     <div class="container hero-grid animate-fade-up">
@@ -41,10 +41,10 @@
         <span class="pill-badge">
           <span class="pulse-dot"></span> Ciudad Obregón, Sonora
         </span>
-        <h2>Comida local deliciosa con <span>descuentos irresistibles.</span></h2>
-        <p>Rescata paquetes sorpresa con excedentes del día en perfecto estado. Ahorra dinero, apoya negocios locales y reduce el desperdicio.</p>
+        <h2>Rescata comida local con <span>descuentos irresistibles.</span></h2>
+        <p>Conectamos establecimientos con consumidores para evitar el desperdicio de alimentos y cuidar tu economía diaria[cite: 1].</p>
         <div class="hero-cta">
-          <a href="#vista-catalogo" class="btn-hero-cta">Explorar paquetes de hoy ↓</a>
+          <a href="#vista-catalogo" class="btn-hero-cta">Ver paquetes disponibles ↓</a>
         </div>
       </div>
       <div class="hero-logo-showcase animate-float">
@@ -58,19 +58,19 @@
   <!-- Contenido Principal -->
   <main class="container main-content">
     
-    <!-- VISTA CLIENTE / GENERAL -->
+    <!-- VISTA CLIENTE -->
     <div id="vista-catalogo" class="animate-fade-up" style="animation-delay: 0.1s;">
       <div class="section-header">
         <div>
           <h3>🛍️ Paquetes listos para rescatar hoy</h3>
-          <p class="section-sub">Compra en línea con tarjeta para recoger o pide en efectivo hasta tu casa</p>
+          <p class="section-sub">Compra en línea con tarjeta para recoger o paga en efectivo a domicilio</p>
         </div>
       </div>
 
       <div id="grid-productos" class="grid-cards">
         <div class="loader-container">
           <div class="spinner"></div>
-          <p>Buscando paquetes frescos cerca de ti...</p>
+          <p>Buscando paquetes frescos...</p>
         </div>
       </div>
     </div>
@@ -81,7 +81,7 @@
         <div>
           <span class="badge-negocio">Modo Comercio Local</span>
           <h2>Panel de Gestión</h2>
-          <p id="nombre-negocio-label">Publica tus excedentes del día en segundos.</p>
+          <p id="nombre-negocio-label">Publica tus excedentes y dales salida.</p>
         </div>
         <button class="btn-primario btn-lg" onclick="abrirModalProducto()">
           <span>+</span> Publicar Nuevo Paquete
@@ -99,13 +99,13 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
-      <img src="logo.png" alt="Leftovers" style="height: 48px; margin-bottom: 8px; border-radius: 10px;">
+      <img src="logo.png" alt="Leftovers" style="height: 48px; margin-bottom: 8px; border-radius: 12px; background: var(--crema-logo); padding: 4px;">
       <p><strong>Leftovers</strong> — Rescata sabor, reduce el desperdicio.</p>
-      <p class="footer-sub">Impulsando el consumo sustentable en Ciudad Obregón.</p>
+      <p class="footer-sub">Impulsando el consumo sustentable en Ciudad Obregón[cite: 1].</p>
     </div>
   </footer>
 
-  <!-- MODAL DE AUTENTICACIÓN CON MAPA PARA RESTAURANTES -->
+  <!-- MODAL AUTH -->
   <div id="modal-auth" class="modal hidden" onclick="cerrarSiClickFuera(event, 'modal-auth')">
     <div class="modal-box modal-auth-wide animate-modal">
       <div class="modal-header-tabs">
@@ -125,18 +125,17 @@
         <label>¿Cómo usarás Leftovers?</label>
         <select id="reg-tipo" onchange="toggleCamposNegocio()">
           <option value="cliente">🙋‍♂️ Soy Cliente (Quiero rescatar comida)</option>
-          <option value="restaurante">🏪 Soy Restaurante / Comercio local</option>
+          <option value="restaurante">🏪 Soy Restaurante / Comercio local[cite: 1]</option>
         </select>
 
         <label id="label-nombre">Tu nombre completo</label>
         <input type="text" id="reg-nombre" required placeholder="Ej. Jose Chavez">
 
-        <!-- Campos con Mapa Interactivo para Restaurante -->
         <div id="campos-restaurante" class="hidden">
           <label>📍 Selecciona tu ubicación en el mapa de Ciudad Obregón</label>
-          <p class="hint-mapa">Toca o arrastra el marcador azul hasta el punto exacto de tu negocio:</p>
+          <p class="hint-mapa">Toca o arrastra el marcador hasta el punto exacto de tu negocio:</p>
           <div id="mapa-registro" class="mapa-box"></div>
-          <input type="text" id="reg-direccion" readonly placeholder="Haz clic en el mapa para fijar tu ubicación..." required>
+          <input type="text" id="reg-direccion" readonly placeholder="Haz clic en el mapa..." required>
           <input type="hidden" id="reg-lat">
           <input type="hidden" id="reg-lng">
         </div>
@@ -154,18 +153,18 @@
     </div>
   </div>
 
-  <!-- MODAL PARA PUBLICAR PRODUCTO CON CÁLCULO DE PORCENTAJE -->
+  <!-- MODAL PUBLICAR PRODUCTO (VALIDACIÓN ESTRICTA DE DESCUENTO) -->
   <div id="modal-producto" class="modal hidden" onclick="cerrarSiClickFuera(event, 'modal-producto')">
     <div class="modal-box animate-modal">
       <h3>📦 Nuevo Paquete Sorpresa</h3>
-      <p class="modal-desc">Ingresa el precio normal y el porcentaje de descuento que aplicarás.</p>
+      <p class="modal-desc">El descuento es obligatorio para rescatar excedentes.</p>
       
       <form id="form-nuevo-producto" onsubmit="guardarProducto(event)" class="auth-form">
         <label>Nombre del paquete o platillo</label>
         <input type="text" id="prod-titulo" required placeholder="Ej. Paquete Sorpresa Pan Dulce">
         
-        <label>¿Qué incluye o qué deben saber?</label>
-        <textarea id="prod-desc" rows="2" placeholder="Ej. Bolsa mixta con 6 piezas recién horneadas..." required></textarea>
+        <label>¿Qué incluye?</label>
+        <textarea id="prod-desc" rows="2" placeholder="Ej. Bolsa mixta con piezas del día..." required></textarea>
         
         <div class="form-row">
           <div>
@@ -173,12 +172,11 @@
             <input type="number" id="prod-precio-orig" step="0.01" min="1" required placeholder="120" oninput="calcularPrecioDescuento()">
           </div>
           <div>
-            <label>Descuento a aplicar (%)</label>
-            <input type="number" id="prod-porcentaje" min="10" max="90" value="50" required placeholder="50" oninput="calcularPrecioDescuento()">
+            <label>Descuento obligatorio (%) *</label>
+            <input type="number" id="prod-porcentaje" min="1" max="90" required placeholder="Ej. 50" oninput="calcularPrecioDescuento()">
           </div>
         </div>
 
-        <!-- Caja de vista previa del cálculo automático -->
         <div class="calculo-preview-box">
           <span>Precio final para el cliente:</span>
           <strong id="preview-precio-final">$0.00 MXN</strong>
@@ -203,11 +201,10 @@
     </div>
   </div>
 
-  <!-- MODAL DE CHECKOUT (TARJETA RECOGER O EFECTIVO A DOMICILIO) -->
+  <!-- MODAL CHECKOUT -->
   <div id="modal-checkout" class="modal hidden" onclick="cerrarSiClickFuera(event, 'modal-checkout')">
     <div class="modal-box modal-checkout-box animate-modal">
       
-      <!-- Paso 1: Formulario -->
       <div id="checkout-paso-pago">
         <div class="checkout-header">
           <span class="badge-seguro">🛍️ Finalizar Pedido en Leftovers</span>
@@ -220,7 +217,7 @@
           <div class="resumen-compra-box">
             <div class="form-row">
               <div>
-                <label>Cantidad de paquetes</label>
+                <label>Cantidad</label>
                 <input type="number" id="checkout-cantidad" value="1" min="1" required onchange="recalcularTotalCheckout()">
               </div>
               <div>
@@ -237,17 +234,16 @@
             </div>
           </div>
 
-          <!-- BLOQUE A: PAGO CON TARJETA (RECOGER EN LOCAL) -->
           <div id="bloque-pago-tarjeta">
-            <label>Horario para pasar a recoger</label>
+            <label>Horario para recoger</label>
             <select id="checkout-horario">
               <option value="Hoy 18:00 - 19:00">Hoy 18:00 - 19:00</option>
               <option value="Hoy 19:00 - 20:00">Hoy 19:00 - 20:00</option>
               <option value="Hoy 20:00 - 21:00">Hoy 20:00 - 21:00</option>
             </select>
 
-            <label>Nombre del titular de la tarjeta</label>
-            <input type="text" id="checkout-titular" placeholder="Como aparece en la tarjeta">
+            <label>Titular de la tarjeta</label>
+            <input type="text" id="checkout-titular" placeholder="Nombre completo">
 
             <label>Número de tarjeta</label>
             <input type="text" id="checkout-tarjeta" maxlength="19" placeholder="4555 •••• •••• 1234" oninput="formatearNumeroTarjeta(this)">
@@ -264,20 +260,19 @@
             </div>
           </div>
 
-          <!-- BLOQUE B: PAGO EN EFECTIVO (ENVÍO A DOMICILIO) -->
           <div id="bloque-pago-efectivo" class="hidden">
             <div class="aviso-efectivo">
-              🛵 Pagas en efectivo al repartidor cuando llegue a tu puerta.
+              🛵 Pagas en efectivo al repartidor al llegar a tu puerta.
             </div>
-            <label>Dirección completa de entrega (Calle, número y colonia)</label>
-            <textarea id="checkout-direccion-casa" rows="2" placeholder="Ej. Calle Náinari #1234, Col. Cumuripa, entre California y Jalisco"></textarea>
+            <label>Dirección completa de entrega</label>
+            <textarea id="checkout-direccion-casa" rows="2" placeholder="Calle, número, colonia..."></textarea>
             
-            <label>Referencias de tu casa (Color, rejas, etc.)</label>
-            <input type="text" id="checkout-referencias" placeholder="Ej. Casa blanca de dos pisos frente al parque">
+            <label>Referencias</label>
+            <input type="text" id="checkout-referencias" placeholder="Color de casa, portón, etc.">
           </div>
 
           <label>Teléfono de contacto</label>
-          <input type="tel" id="checkout-telefono" required placeholder="Ej. 6441234567">
+          <input type="tel" id="checkout-telefono" required placeholder="6441234567">
 
           <div class="modal-actions">
             <button type="button" class="btn-secundario" onclick="cerrarModalCheckout()">Cancelar</button>
@@ -286,18 +281,16 @@
         </form>
       </div>
 
-      <!-- Paso 2: Procesando -->
       <div id="checkout-paso-procesando" class="hidden text-center" style="padding: 35px 10px;">
         <div class="spinner" style="width: 48px; height: 48px; border-width: 4px;"></div>
-        <h3 style="margin-top: 15px; color: var(--verde-oscuro);" id="texto-procesando">Procesando tu pedido...</h3>
-        <p class="modal-desc">Confirmando disponibilidad con el establecimiento</p>
+        <h3 style="margin-top: 15px; color: var(--verde-oscuro);" id="texto-procesando">Procesando...</h3>
+        <p class="modal-desc">Validando detalles</p>
       </div>
 
-      <!-- Paso 3: Ticket Digital -->
       <div id="checkout-paso-exito" class="hidden text-center">
         <div class="ticket-check">✅</div>
         <h3 style="color: var(--verde-oscuro);">¡Pedido Confirmado!</h3>
-        <p class="modal-desc" id="ticket-subtitulo">Guarda tu comprobante digital.</p>
+        <p class="modal-desc" id="ticket-subtitulo">Guarda tu comprobante.</p>
 
         <div class="ticket-digital">
           <div class="ticket-fila">
@@ -317,8 +310,8 @@
             <strong id="ticket-modalidad">Recoger</strong>
           </div>
           <div class="ticket-fila">
-            <span id="ticket-label-lugar">Dirección:</span>
-            <span id="ticket-valor-lugar">Lugar</span>
+            <span id="ticket-label-lugar">Lugar:</span>
+            <span id="ticket-valor-lugar">Dirección</span>
           </div>
           <div class="ticket-fila ticket-total">
             <span>Total:</span>
@@ -326,7 +319,7 @@
           </div>
         </div>
 
-        <button type="button" class="btn-primario w-full" onclick="cerrarModalCheckout()">Listo, volver al catálogo</button>
+        <button type="button" class="btn-primario w-full" onclick="cerrarModalCheckout()">Volver al catálogo</button>
       </div>
 
     </div>
