@@ -63,7 +63,7 @@
       <div class="section-header">
         <div>
           <h3>🛍️ Paquetes listos para rescatar hoy</h3>
-          <p class="section-sub">Compra en línea con tarjeta para recoger o paga en efectivo a domicilio</p>
+          <p class="section-sub">Pasa a recoger a la tienda (tarjeta o efectivo) o pídelo en efectivo hasta tu casa</p>
         </div>
       </div>
 
@@ -129,7 +129,7 @@
         </select>
 
         <label id="label-nombre">Tu nombre completo</label>
-        <input type="text" id="reg-nombre" required placeholder="Ej. Paolita Suarez">
+        <input type="text" id="reg-nombre" required placeholder="Ej. Jose Chavez">
 
         <div id="campos-restaurante" class="hidden">
           <label>📍 Selecciona tu ubicación en el mapa de Ciudad Obregón</label>
@@ -153,7 +153,7 @@
     </div>
   </div>
 
-  <!-- MODAL PUBLICAR PRODUCTO (VALIDACIÓN ESTRICTA DE DESCUENTO) -->
+  <!-- MODAL PUBLICAR PRODUCTO -->
   <div id="modal-producto" class="modal hidden" onclick="cerrarSiClickFuera(event, 'modal-producto')">
     <div class="modal-box animate-modal">
       <h3>📦 Nuevo Paquete Sorpresa</h3>
@@ -201,10 +201,11 @@
     </div>
   </div>
 
-  <!-- MODAL CHECKOUT -->
+  <!-- MODAL CHECKOUT CON RECOGER EN TIENDA (Y MAPA) O ENVÍO A DOMICILIO -->
   <div id="modal-checkout" class="modal hidden" onclick="cerrarSiClickFuera(event, 'modal-checkout')">
     <div class="modal-box modal-checkout-box animate-modal">
       
+      <!-- Paso 1: Formulario -->
       <div id="checkout-paso-pago">
         <div class="checkout-header">
           <span class="badge-seguro">🛍️ Finalizar Pedido en Leftovers</span>
@@ -221,10 +222,11 @@
                 <input type="number" id="checkout-cantidad" value="1" min="1" required onchange="recalcularTotalCheckout()">
               </div>
               <div>
-                <label>Método de Pago</label>
+                <label>¿Cómo quieres tu pedido?</label>
                 <select id="checkout-metodo" onchange="cambiarMetodoPago()">
-                  <option value="tarjeta">💳 Tarjeta (Recoger en local)</option>
-                  <option value="efectivo">💵 Efectivo (Envío a domicilio)</option>
+                  <option value="recoger_tarjeta">🏪 Ir a la tienda (Pagar con Tarjeta)</option>
+                  <option value="recoger_efectivo">🏪 Ir a la tienda (Pagar en Efectivo)</option>
+                  <option value="domicilio_efectivo">🛵 Envío a domicilio (Efectivo)</option>
                 </select>
               </div>
             </div>
@@ -234,14 +236,29 @@
             </div>
           </div>
 
-          <div id="bloque-pago-tarjeta">
-            <label>Horario para recoger</label>
+          <!-- BLOQUE RECOGER EN TIENDA (HORARIO + MAPA DEL RESTAURANTE) -->
+          <div id="bloque-recoger-tienda">
+            <label>Horario en que pasarás a recoger</label>
             <select id="checkout-horario">
               <option value="Hoy 18:00 - 19:00">Hoy 18:00 - 19:00</option>
               <option value="Hoy 19:00 - 20:00">Hoy 19:00 - 20:00</option>
               <option value="Hoy 20:00 - 21:00">Hoy 20:00 - 21:00</option>
             </select>
 
+            <div class="ubicacion-tienda-card">
+              <div class="ubicacion-tienda-header">
+                <div>
+                  <strong>📍 Ubicación de la tienda para recoger:</strong>
+                  <p id="checkout-tienda-dir" class="tienda-dir-texto">Cargando dirección...</p>
+                </div>
+                <a id="btn-google-maps-checkout" href="#" target="_blank" class="btn-ruta-maps">Cómo llegar ↗</a>
+              </div>
+              <div id="mapa-checkout-tienda" class="mapa-box mapa-checkout-mini"></div>
+            </div>
+          </div>
+
+          <!-- BLOQUE DATOS DE TARJETA (SOLO SI ELIGE RECOGER CON TARJETA) -->
+          <div id="bloque-pago-tarjeta">
             <label>Titular de la tarjeta</label>
             <input type="text" id="checkout-titular" placeholder="Nombre completo">
 
@@ -260,6 +277,14 @@
             </div>
           </div>
 
+          <!-- AVISO EFECTIVO EN TIENDA -->
+          <div id="bloque-aviso-efectivo-tienda" class="hidden">
+            <div class="aviso-efectivo">
+              💵 Tu paquete quedará apartado. Pagarás en efectivo directamente en la caja del establecimiento al recogerlo.
+            </div>
+          </div>
+
+          <!-- BLOQUE ENVÍO A DOMICILIO (SOLO SI ELIGE DOMICILIO) -->
           <div id="bloque-pago-efectivo" class="hidden">
             <div class="aviso-efectivo">
               🛵 Pagas en efectivo al repartidor al llegar a tu puerta.
@@ -281,12 +306,14 @@
         </form>
       </div>
 
+      <!-- Paso 2: Procesando -->
       <div id="checkout-paso-procesando" class="hidden text-center" style="padding: 35px 10px;">
         <div class="spinner" style="width: 48px; height: 48px; border-width: 4px;"></div>
         <h3 style="margin-top: 15px; color: var(--verde-oscuro);" id="texto-procesando">Procesando...</h3>
-        <p class="modal-desc">Validando detalles</p>
+        <p class="modal-desc">Validando disponibilidad con el establecimiento</p>
       </div>
 
+      <!-- Paso 3: Ticket Digital con Botón de Ubicación -->
       <div id="checkout-paso-exito" class="hidden text-center">
         <div class="ticket-check">✅</div>
         <h3 style="color: var(--verde-oscuro);">¡Pedido Confirmado!</h3>
@@ -317,6 +344,13 @@
             <span>Total:</span>
             <strong id="ticket-total">$0.00 MXN</strong>
           </div>
+        </div>
+
+        <!-- Botón directo a Google Maps en el ticket si eligió ir a tienda -->
+        <div id="ticket-accion-mapa" class="hidden" style="margin-bottom: 12px;">
+          <a id="ticket-btn-google-maps" href="#" target="_blank" class="btn-secundario w-full" style="display: block; text-decoration: none; font-weight: 700; color: var(--verde-oscuro);">
+            🗺️ Abrir ubicación del restaurante en Google Maps
+          </a>
         </div>
 
         <button type="button" class="btn-primario w-full" onclick="cerrarModalCheckout()">Volver al catálogo</button>
